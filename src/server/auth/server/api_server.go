@@ -238,7 +238,7 @@ func NewAuthServer(
 			env.GetEtcdClient(),
 			path.Join(etcdPrefix, adminsPrefix),
 			nil,
-			&types.BoolValue{}, // smallest value that etcd actually stores
+			&auth.AdminGrant{},
 			nil,
 			nil,
 		),
