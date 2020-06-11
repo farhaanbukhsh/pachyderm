@@ -400,6 +400,7 @@ type putTarFunc func(pfs.API_PutTarServer) error
 type getTarFunc func(*pfs.GetTarRequest, pfs.API_GetTarServer) error
 type getTarConditionalFunc func(pfs.API_GetTarConditionalServer) error
 type listFileV2Func func(*pfs.ListFileRequest, pfs.API_ListFileV2Server) error
+type globFileV2Func func(*pfs.GlobFileRequest, pfs.API_GlobFileV2Server) error
 
 type mockCreateRepo struct{ handler createRepoFunc }
 type mockInspectRepo struct{ handler inspectRepoFunc }
@@ -435,6 +436,7 @@ type mockPutTar struct{ handler putTarFunc }
 type mockGetTar struct{ handler getTarFunc }
 type mockGetTarConditional struct{ handler getTarConditionalFunc }
 type mockListFileV2 struct{ handler listFileV2Func }
+type mockGlobFileV2 struct{ handler globFileV2Func }
 
 func (mock *mockCreateRepo) Use(cb createRepoFunc)               { mock.handler = cb }
 func (mock *mockInspectRepo) Use(cb inspectRepoFunc)             { mock.handler = cb }
@@ -470,6 +472,7 @@ func (mock *mockPutTar) Use(cb putTarFunc)                       { mock.handler 
 func (mock *mockGetTar) Use(cb getTarFunc)                       { mock.handler = cb }
 func (mock *mockGetTarConditional) Use(cb getTarConditionalFunc) { mock.handler = cb }
 func (mock *mockListFileV2) Use(cb listFileV2Func)               { mock.handler = cb }
+func (mock *mockGlobFileV2) Use(cb globFileV2Func)               { mock.handler = cb }
 
 type pfsServerAPI struct {
 	mock *mockPFSServer
@@ -511,6 +514,7 @@ type mockPFSServer struct {
 	GetTar            mockGetTar
 	GetTarConditional mockGetTarConditional
 	ListFileV2        mockListFileV2
+	GlobFileV2        mockGlobFileV2
 }
 
 func (api *pfsServerAPI) CreateRepo(ctx context.Context, req *pfs.CreateRepoRequest) (*types.Empty, error) {
@@ -714,6 +718,12 @@ func (api *pfsServerAPI) GetTarConditional(serv pfs.API_GetTarConditionalServer)
 func (api *pfsServerAPI) ListFileV2(req *pfs.ListFileRequest, serv pfs.API_ListFileV2Server) error {
 	if api.mock.ListFileV2.handler != nil {
 		return api.mock.ListFileV2.handler(req, serv)
+	}
+	return errors.Errorf("unhandled pachd mock pfs.ListFileV2")
+}
+func (api *pfsServerAPI) GlobFileV2(req *pfs.GlobFileRequest, serv pfs.API_GlobFileV2Server) error {
+	if api.mock.ListFileV2.handler != nil {
+		return api.mock.GlobFileV2.handler(req, serv)
 	}
 	return errors.Errorf("unhandled pachd mock pfs.ListFileV2")
 }
